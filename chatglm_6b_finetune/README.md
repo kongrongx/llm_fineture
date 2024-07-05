@@ -177,55 +177,10 @@
 - 代码： 
     - 微调代码：finetune_hf.py
     - 推理代码：inference_hf.py
-    - 合并代码：model_export_hf.py
+    - 合并lora和basemodel代码1：model_export_hf.py
+    - 合并lora和basemodel代码2：merge_lora_basemodel.py
 - 数据集：data/self_cognition
 - 配置文件：configs/lora.yaml
-    
-    ```
-    data_config:
-      train_file: train.json
-      val_file: dev.json
-      test_file: dev.json
-      num_proc: 16
-    max_input_length: 128
-    max_output_length: 256
-    training_args:
-      # see `transformers.Seq2SeqTrainingArguments`
-      output_dir: ./output
-      max_steps: 3000
-      # settings for data loading
-      per_device_train_batch_size: 1
-      dataloader_num_workers: 16
-      remove_unused_columns: false
-      # settings for saving checkpoints
-      save_strategy: steps
-      save_steps: 500
-      # settings for logging
-      log_level: info
-      logging_strategy: steps
-      logging_steps: 10
-      # settings for evaluation
-      per_device_eval_batch_size: 16
-      evaluation_strategy: steps
-      eval_steps: 500
-      # settings for optimizer
-      # adam_epsilon: 1e-6
-      # uncomment the following line to detect nan or inf values
-      # debug: underflow_overflow
-      predict_with_generate: true
-      # see `transformers.GenerationConfig`
-      generation_config:
-        max_new_tokens: 256
-      # set your absolute deepspeed path here
-      #deepspeed: ds_zero_2.json
-    peft_config:
-      peft_type: LORA
-      task_type: CAUSAL_LM
-      r: 8
-      lora_alpha: 32
-      lora_dropout: 0.1
-    
-    ```
     
 
 ### 1. 微调训练：
@@ -234,14 +189,14 @@
 
 - 数据集： data/self_cognition
 - 基础模型： ../chatglm3-6b
-- 配置参数： configs/lora.yaml
+- 配置参数： configs/my_lora.yaml
 - 保留上次训练选项： YES  NO
 
 训练按照 configs/lora.yaml 的配置参数训练完成，保存到 output目录。(./output/checkpoint-3000)
 
 ### 2. 推理测试效果
 
- python3 inference_hf.py output/checkpoint-3000/ --prompt "你是谁?"
+ python chatglm_6b_finetune/inference_hf.py chatglm_6b_finetune/output/checkpoint-3 0/ --prompt "你是谁?"
 
 - 预训练模型：  output/checkpoint-3000
     - 我们没有合并训练后的模型，而是在`adapter_config.json`中记录了微调型的路径，如果你的原始模型位置发生更改，我们也要修改`adapter_config.json`中`base_model_name_or_path`的路径。 所以， 我们使用load_model_and_tokenizer，通过 AutoPeftModelForCausalLM.from_pretrained调用实现rola权重和基础模型的合并。 这个不是真正意义的合并，还是需要基础模型和lora权重分别保存。
@@ -259,9 +214,9 @@
 
 以上的推理需要基础模型和lora权重分别加载，这样在实际项目中非常不方便，另外官方提供的各种调用方式也是按照基础模型的调用方式使用的，以后做量化或者在此基础上再训练如果不合并就很难做下一部分工作。
 
- python3 model_export_hf.py   ./output/checkpoint-3000/  --out-dir ./chatglm3-6b-01
+ python3 chatglm_6b_finetune/model_export_hf.py   ./chatglm_6b_finetune/output/checkpoint-30/  --out-dir ./chatglm3-6b-01
 
-- 预训练模型目录（lora）：  ./output/checkpoint-3000/
+- 预训练模型目录（lora）：  ./output/checkpoint-30/
 - 合并后模型输出目录：  --out-dir ./chatglm3-6b-01
 
 ```

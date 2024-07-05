@@ -1,60 +1,19 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import math
+from dataclasses import dataclass
 
-from pathlib import Path
-from typing import Annotated, Union
+@dataclass
+class Point:
+    x: float
+    y: float
 
-import typer
-from peft import AutoPeftModelForCausalLM, PeftModelForCausalLM
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    PreTrainedModel,
-    PreTrainedTokenizer,
-    PreTrainedTokenizerFast,
-)
+    def __post_init__(self):
+        self.distance_from_origin = math.sqrt(self.x ** 2 + self.y ** 2)
 
-ModelType = Union[PreTrainedModel, PeftModelForCausalLM]
-TokenizerType = Union[PreTrainedTokenizer, PreTrainedTokenizerFast]
+    def distance_to(self, other):
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
-app = typer.Typer(pretty_exceptions_show_locals=False)
+p1 = Point(3, 4)
+p2 = Point(6, 8)
 
-
-def _resolve_path(path: Union[str, Path]) -> Path:
-    return Path(path).expanduser().resolve()
-
-
-def load_model_and_tokenizer(model_dir: Union[str, Path]) -> tuple[ModelType, TokenizerType]:
-    model_dir = _resolve_path(model_dir)
-    if (model_dir / 'adapter_config.json').exists():
-        model = AutoPeftModelForCausalLM.from_pretrained(
-            model_dir, trust_remote_code=True, device_map='auto'
-        )
-        tokenizer_dir = model.peft_config['default'].base_model_name_or_path
-    else:
-        model = AutoModelForCausalLM.from_pretrained(
-            model_dir, trust_remote_code=True, device_map='auto'
-        )
-        tokenizer_dir = model_dir
-    tokenizer = AutoTokenizer.from_pretrained(
-        tokenizer_dir, trust_remote_code=True
-    )
-    return model, tokenizer
-
-
-@app.command()
-def main(
-        model_dir: Annotated[str, typer.Argument(help='')],
-        out_dir: Annotated[str, typer.Option(help='')],
-):
-    model, tokenizer = load_model_and_tokenizer(model_dir)
-
-    # 把加载原模型和lora模型后做合并，并保存
-    merged_model = model.merge_and_unload()
-    merged_model.save_pretrained(out_dir, safe_serialization=True)
-    tokenizer.save_pretrained(out_dir)
-
-if __name__ == '__main__':
-    # app()
-    # prompt='你是谁'
-    main(model_dir='output/checkpoint-30/',out_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b_lore_self_condition')
+# print(p1.distance_from_origin)  # 输出 5.0
+print(p1.distance_to(p2))  # 输出 5.0

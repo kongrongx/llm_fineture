@@ -575,4 +575,4 @@ if __name__ == '__main__':
     data_dir = 'data/self_cognition'
     model_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
     config_file='chatglm_6b_finetune/configs/my_lora.yaml'
-    main(data_dir=data_dir, model_dir=model_dir,config_file=config_file,auto_resume_from_checkpoint='no')
+    main(data_dir=data_dir, model_dir=model_dir,config_file=config_file,auto_resume_from_checkpoint='')
