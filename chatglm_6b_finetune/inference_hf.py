@@ -55,4 +55,5 @@ def main(
 if __name__ == '__main__':
     # app()
     prompt='你是谁'
-    main(model_dir='chatglm_6b_finetune/output/checkpoint-30',prompt=prompt)
+    # main(model_dir='/home/wuyou/llm_finetune/output/checkpoint-3000',prompt=prompt)
+    main(model_dir='output/checkpoint-3000',prompt=prompt)

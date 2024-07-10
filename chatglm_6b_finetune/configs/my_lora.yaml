@@ -5,8 +5,8 @@ data_config:
   num_proc: 16
 #max_input_length: 256
 #max_output_length: 512
-max_input_length: 32
-max_output_length: 64
+max_input_length: 256
+max_output_length: 512
 training_args:
   # see `transformers.Seq2SeqTrainingArguments`
   output_dir: ./output

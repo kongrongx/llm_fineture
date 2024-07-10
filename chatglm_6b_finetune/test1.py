@@ -1,19 +1,20 @@
-import math
-from dataclasses import dataclass
+from transformers import AutoTokenizer, AutoModel
 
-@dataclass
-class Point:
-    x: float
-    y: float
+# cache_dir = 'G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
+cache_dir = '/home/wuyou/llm_finetune/llm_models_store/ZhipuAI/chatglm3-6b'
 
-    def __post_init__(self):
-        self.distance_from_origin = math.sqrt(self.x ** 2 + self.y ** 2)
+tokenizer = AutoTokenizer.from_pretrained(cache_dir, trust_remote_code=True)
+# model = AutoModel.from_pretrained(cache_dir, trust_remote_code=True, device='cpu')
+model = AutoModel.from_pretrained(
+    cache_dir,
+    # load_in_8bit=True,
+    # load_in_4bit=True,
+    trust_remote_code=True,
+    # device='cpu'
+    device='cuda'
+)
+model = model.eval()
 
-    def distance_to(self, other):
-        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
-p1 = Point(3, 4)
-p2 = Point(6, 8)
-
-# print(p1.distance_from_origin)  # 输出 5.0
-print(p1.distance_to(p2))  # 输出 5.0
+response, history = model.chat(tokenizer, "你是谁", history=[])
+print(response)

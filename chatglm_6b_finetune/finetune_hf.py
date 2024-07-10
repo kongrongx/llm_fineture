@@ -241,6 +241,11 @@ class DataManager(object):
         )
 
     def _get_dataset(self, split: NamedSplit) -> Optional[Dataset]:
+        '''
+        获取对应的数据集 比如训练集 测试集 评估集
+        :param split:
+        :return:
+        '''
         return self._dataset_dct.get(split, None)
 
     def get_dataset(
@@ -573,6 +578,8 @@ def main(
 if __name__ == '__main__':
     # app()
     data_dir = 'data/self_cognition'
-    model_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
-    config_file='chatglm_6b_finetune/configs/my_lora.yaml'
+    model_dir='/home/wuyou/llm_finetune/llm_models_store/ZhipuAI/chatglm3-6b'
+    # model_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
+    # model_dir='E:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
+    config_file='./chatglm_6b_finetune/configs/lora.yaml'
     main(data_dir=data_dir, model_dir=model_dir,config_file=config_file,auto_resume_from_checkpoint='')

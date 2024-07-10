@@ -1,14 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="220.168.146.21-3090 (4)" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true">
+    <option name="confirmBeforeUploading" value="false" />
     <serverData>
-      <paths name="rbp_ubt">
+      <paths name="220.168.146.21-3090">
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
+      <paths name="220.168.146.21-3090 (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_20" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="220.168.146.21-3090 (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/wuyou/llm_finetune" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="220.168.146.21-3090 (4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/wuyou/llm_finetune" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>
