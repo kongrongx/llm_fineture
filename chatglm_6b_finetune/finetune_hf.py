@@ -16,7 +16,9 @@ from peft import (
     PeftConfig,
     PeftModelForCausalLM,
     get_peft_config,
-    get_peft_model
+    get_peft_model,
+    prepare_model_for_kbit_training,
+LoraConfig
 )
 from rouge_chinese import Rouge
 from torch import nn
@@ -31,12 +33,17 @@ from transformers import (
     Seq2SeqTrainingArguments, AutoConfig,
 )
 from transformers import DataCollatorForSeq2Seq as _DataCollatorForSeq2Seq
+from transformers import BitsAndBytesConfig, TrainingArguments
 
 from transformers import Seq2SeqTrainer as _Seq2SeqTrainer
 
 ModelType = Union[PreTrainedModel, PeftModelForCausalLM]
 TokenizerType = Union[PreTrainedTokenizer, PreTrainedTokenizerFast]
 app = typer.Typer(pretty_exceptions_show_locals=False)
+
+
+
+is_qlora = True
 
 
 class DataCollatorForSeq2Seq(_DataCollatorForSeq2Seq):
@@ -401,7 +408,7 @@ def load_tokenizer_and_model(
                 trust_remote_code=True,
                 config=config,
             )
-        if peft_config.peft_type.name == "LORA":
+        if peft_config.peft_type.name == "LORA" and is_qlora==False:
             model = AutoModelForCausalLM.from_pretrained(
                 model_dir,
                 trust_remote_code=True,
@@ -410,6 +417,30 @@ def load_tokenizer_and_model(
             )
             model = get_peft_model(model, peft_config)
             model.print_trainable_parameters()
+
+        if peft_config.peft_type.name == "LORA" and is_qlora==True:
+
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,  # load model in 4-bit precision
+                bnb_4bit_quant_type="nf4",  # pre-trained model should be quantized in 4-bit NF format
+                bnb_4bit_use_double_quant=True,  # 启用了QLoRA提出的双重量化
+                bnb_4bit_compute_dtype=torch.bfloat16,#在计算过程中以16位格式对基础模型进行反量化
+                # During computation, pre-trained model should be loaded in BF16 format
+            )
+
+            model = AutoModelForCausalLM.from_pretrained(
+                model_dir,
+                quantization_config=bnb_config,
+                trust_remote_code=True,
+                empty_init=False,
+                use_cache=False
+            )
+
+            model = prepare_model_for_kbit_training(model) #用来在微调中提高训练的稳定性，量化训练时使模型能够在低精度下有效地学习，同时尽量减少精度损失。主要包括 layer norm 层保留 FP32 精度,嵌入层以及 LM head 输出层保留 FP32 精度
+            model = get_peft_model(model, peft_config)
+            model.print_trainable_parameters()
+
+
     else:
         model = AutoModelForCausalLM.from_pretrained(
             model_dir,
@@ -578,8 +609,8 @@ def main(
 if __name__ == '__main__':
     # app()
     data_dir = 'data/self_cognition'
-    model_dir='/home/wuyou/llm_finetune/llm_models_store/ZhipuAI/chatglm3-6b'
-    # model_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
+    # model_dir='/home/wuyou/llm_finetune/llm_models_store/ZhipuAI/chatglm3-6b'
+    model_dir='G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
     # model_dir='E:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b'
     config_file='./chatglm_6b_finetune/configs/lora.yaml'
     main(data_dir=data_dir, model_dir=model_dir,config_file=config_file,auto_resume_from_checkpoint='')

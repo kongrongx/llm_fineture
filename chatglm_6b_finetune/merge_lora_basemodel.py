@@ -70,8 +70,8 @@ def main():
     lora_model_path = 'output/checkpoint-3000'
     merge_model_path = 'G:/WorkSpace/aigc/llm_models_store/llm_chat_models/chatglm3_6b_lore_self_condition'
 
-    merge_lora_baasemodel_v1(base_model_path,lora_model_path,merge_model_path)
-    # merge_lora_baasemodel_v2()
+    # merge_lora_baasemodel_v1(base_model_path,lora_model_path,merge_model_path)
+    merge_lora_baasemodel_v2(lora_model_path, merge_model_path)
 
 if __name__ == '__main__':
     main()
